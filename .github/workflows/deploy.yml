@@ -1,0 +1,48 @@
+name: Build and Push to AWS ECR
+
+# 觸發條件：當有程式碼 push 到 main 分支時啟動
+on:
+  push:
+    branches:
+      - main
+
+env:
+  ECR_REPOSITORY: server-monitor-api # 你的 ECR 儲存庫名稱
+
+jobs:
+  build-and-push:
+    name: Build Docker Image and Push to ECR
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu 虛擬機作為打包環境
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        # 從 GitHub 保險箱讀取你剛才存入的鑰匙
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }} # 使用 Git Commit 的雜湊值作為版本號 (業界標準)
+      run: |
+        echo "開始建置 Docker 映像檔..."
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        
+        echo "加上 latest 標籤..."
+        docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+        echo "推送到 AWS ECR..."
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        
+        echo "::notice::映像檔已成功推送到 AWS ECR！"
