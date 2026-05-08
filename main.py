@@ -16,6 +16,11 @@ def health_check():
 @app.get("/api/v1/monitor")
 def get_monitor_data():
     return {"data": "這裡準備回傳資料庫的監控數據"}
+
+# 確保這兩行寫在 app = FastAPI() 的下方
+@app.get("/")
+def read_root():
+    return {"Hello": "World", "message": "我的 AWS API 終於上線啦！"}
 # 配置日誌
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
