@@ -7,6 +7,15 @@ import logging
 from fastapi import FastAPI
 
 app = FastAPI() # <- 確保這行存在且名字正確
+# 確保這段寫在 app = FastAPI() 的下方
+
+@app.get("/")
+def health_check():
+    return {"status": "success", "message": "API 伺服器已成功連線至 AWS RDS！"}
+
+@app.get("/api/v1/monitor")
+def get_monitor_data():
+    return {"data": "這裡準備回傳資料庫的監控數據"}
 # 配置日誌
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
