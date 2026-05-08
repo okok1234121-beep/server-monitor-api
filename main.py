@@ -4,7 +4,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import logging
+from fastapi import FastAPI
 
+app = FastAPI() # <- 確保這行存在且名字正確
 # 配置日誌
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

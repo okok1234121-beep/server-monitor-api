@@ -21,3 +21,7 @@ logs
 
 # macOS
 .DS_Store
+
+# 忽略所有金鑰檔案
+*.pem
+pem_key/
